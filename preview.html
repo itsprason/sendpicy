@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preview</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #F4F2EE;
+            display: flex;
+            align-items: center;
+            height: 100vh;
+        }
+
+        header {
+            background-color: #0077b5;
+            color: #fff;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .profile-container {
+            background: url("./banner1.png");
+            background-repeat: no-repeat;
+            background-size: cover;
+            display: flex;
+            width: 804px;
+            height: 201px;
+            position: relative;
+        }
+
+        .profile-photo {
+            position: absolute;
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 4px solid #fff;
+            left: 18px;
+            bottom: -48px;
+        }
+
+        .main-container {
+            width: 800px;
+            height: 95vh;
+            background-color: white;
+            margin-left: 20px;
+            border-radius: 8px;
+            overflow: hidden;
+            vertical-align: middle;
+        }
+
+        .name-section {
+            position: absolute;
+            width: 332px;
+            left: 16px;
+            bottom: -200px;
+        }
+
+        .profile-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .name-photo {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .save-button {
+            background-color: #0077b5;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="main-container">
+    <div class="profile-container">
+        <div class="name-section">
+            <img class="name-photo" src="./profile-name.png" />
+        </div>
+        <div class="profile-photo">
+            <!-- Display the captured photo here -->
+            <img id="capturedPhoto" alt="Captured Photo">
+        </div>
+        <div>
+            <label for="email">Enter your email:</label>
+            <input type="email" id="email" name="email" required>
+            <button class="save-button" onclick="savePhotoAndSendEmail()">Save HD Photo & Send Email</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+        // Retrieve the captured photo from sessionStorage
+        const capturedPhotoDataURL = sessionStorage.getItem('capturedPhoto');
+
+        if (capturedPhotoDataURL) {
+            // Display the captured photo on the preview page
+            const capturedPhoto = document.getElementById('capturedPhoto');
+            capturedPhoto.src = capturedPhotoDataURL;
+        } else {
+            console.error('No captured photo found.');
+        }
+    });
+
+    function savePhotoAndSendEmail() {
+        savePhoto();
+        const email = document.getElementById('email').value;
+        sendEmail(email);
+    }
+
+    function savePhoto() {
+        const capturedPhotoDataURL = sessionStorage.getItem('capturedPhoto');
+
+        if (capturedPhotoDataURL) {
+            const downloadLink = document.createElement('a');
+            downloadLink.href = capturedPhotoDataURL;
+            downloadLink.download = 'captured_photo.png';
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+        } else {
+            console.error('No captured photo found.');
+        }
+    }
+
+    function sendEmail(email) {
+        const capturedPhotoDataURL = sessionStorage.getItem('capturedPhoto');
+
+        if (capturedPhotoDataURL) {
+            console.log("captured")
+            // Use fetch to send the email (replace with your server-side endpoint)
+            fetch('http://localhost:3000/send-email', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    email: email,
+                    photoDataURL: capturedPhotoDataURL,
+                }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                alert(data.message);
+            })
+            .catch(error => {
+                console.error('Error sending email:', error);
+                alert('Error sending email. Please try again later.');
+            });
+        } else {
+            console.error('No captured photo found.');
+        }
+    }
+</script>
+
+</body>
+</html>
